@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { searchProducts } from "@/lib/products-data";
 
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get("q")?.trim() || "";
@@ -9,17 +9,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const products = await prisma.product.findMany({
-      where: {
-        OR: [
-          { name: { contains: q } },
-          { category: { contains: q } },
-          { description: { contains: q } },
-        ],
-      },
-      orderBy: { id: "asc" },
-    });
-
+    const products = searchProducts(q);
     return NextResponse.json(products, {
       headers: {
         "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",

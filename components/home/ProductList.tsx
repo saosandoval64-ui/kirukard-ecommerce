@@ -1,16 +1,8 @@
 import ProductCard from "./ProductCard";
-import { prisma } from "@/lib/prisma";
-
-async function getProducts() {
-  try {
-    return await prisma.product.findMany({ orderBy: { id: "asc" } });
-  } catch {
-    return [];
-  }
-}
+import { getProducts } from "@/lib/products-data";
 
 export default async function ProductList() {
-  const products = await getProducts();
+  const products = getProducts();
 
   return (
     <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">

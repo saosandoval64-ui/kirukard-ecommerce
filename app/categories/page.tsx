@@ -1,25 +1,21 @@
 import CategoryNav from "@/components/categories/CategoryNav";
-import { prisma } from "@/lib/prisma";
+import { getProducts } from "@/lib/products-data";
 
 export const dynamic = "force-dynamic";
 
-async function getProducts() {
-  try {
-    const products = await prisma.product.findMany({ orderBy: { id: "asc" } });
-    const grouped: Record<string, typeof products> = {};
-    for (const product of products) {
-      const cat = product.category || "Sin categoría";
-      if (!grouped[cat]) grouped[cat] = [];
-      grouped[cat].push(product);
-    }
-    return { all: products, grouped };
-  } catch {
-    return { all: [], grouped: {} };
+function getGroupedProducts() {
+  const products = getProducts();
+  const grouped: Record<string, typeof products> = {};
+  for (const product of products) {
+    const cat = product.category || "Sin categoría";
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(product);
   }
+  return { all: products, grouped };
 }
 
 export default async function CategoriesPage() {
-  const { all, grouped } = await getProducts();
+  const { all, grouped } = getGroupedProducts();
   const categories = Object.keys(grouped);
 
   return (

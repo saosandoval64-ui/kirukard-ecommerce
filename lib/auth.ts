@@ -1,5 +1,3 @@
-import NextAuth from "next-auth";
-import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
@@ -99,42 +97,3 @@ export function clearSessionCookie() {
     "Set-Cookie": `${COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`,
   };
 }
-
-// --- NextAuth (Google OAuth) ---
-
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-  ],
-  pages: {
-    signIn: "/login",
-  },
-  callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
-        try {
-          const existing = await prisma.user.findUnique({
-            where: { email: user.email! },
-          });
-
-          if (!existing) {
-            await prisma.user.create({
-              data: {
-                email: user.email!,
-                password: "",
-                name: user.name || user.email!.split("@")[0],
-                role: "user",
-              },
-            });
-          }
-        } catch {
-          // ignore
-        }
-      }
-      return true;
-    },
-  },
-});

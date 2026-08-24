@@ -3,7 +3,6 @@ import Header from "@/components/layout/Header";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { SettingsProvider } from "@/context/SettingsContext";
-import { SessionProvider } from "next-auth/react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -30,17 +29,15 @@ export default function RootLayout({
       <body
         className={`${inter.className} antialiased flex flex-col min-h-screen`}
       >
-        <SessionProvider>
-          <AuthProvider>
-            <SettingsProvider>
-              <CartProvider>
-                <Header />
-                <main className="flex-grow">{children}</main>
-                <Footer />
-              </CartProvider>
-            </SettingsProvider>
-          </AuthProvider>
-        </SessionProvider>
+        <AuthProvider>
+          <SettingsProvider>
+            <CartProvider>
+              <Header />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </CartProvider>
+          </SettingsProvider>
+        </AuthProvider>
       </body>
     </html>
   );

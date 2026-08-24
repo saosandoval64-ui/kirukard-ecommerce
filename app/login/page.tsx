@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/context/AuthContext";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,7 +14,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,11 +31,6 @@ export default function LoginPage() {
     router.refresh();
   };
 
-  const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
-    await signIn("google", { callbackUrl: "/" });
-  };
-
   return (
     <div className="bg-background flex items-center justify-center px-4 py-16 min-h-[80vh]">
       <div className="w-full max-w-md space-y-8">
@@ -46,27 +39,6 @@ export default function LoginPage() {
           <p className="text-muted-foreground mt-2">
             Accede a tu cuenta de KIRU KARD
           </p>
-        </div>
-
-        <Button
-          variant="outline"
-          className="w-full gap-2"
-          onClick={handleGoogleLogin}
-          disabled={googleLoading}
-        >
-          <i className="fa-brands fa-google" />
-          {googleLoading ? "Conectando..." : "Continuar con Google"}
-        </Button>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-border" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              o usa tu email
-            </span>
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
