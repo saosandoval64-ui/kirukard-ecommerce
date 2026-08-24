@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { allProducts } from "@/lib/products-data";
 import { sendOrderEmail } from "@/lib/email";
 
 export async function POST(request: Request) {
@@ -28,10 +28,7 @@ export async function POST(request: Request) {
     }
 
     const productIds = items.map((item: { id: number }) => item.id);
-    const dbProducts = await prisma.product.findMany({
-      where: { id: { in: productIds } },
-    });
-    const productMap = new Map(dbProducts.map((p) => [p.id, p]));
+    const productMap = new Map(allProducts.map((p) => [p.id, p]));
 
     let subtotal = 0;
     const orderItems: { productId: number; name: string; price: number; quantity: number }[] = [];
@@ -60,42 +57,6 @@ export async function POST(request: Request) {
     const tax = subtotal * 0.08;
     const total = subtotal + shippingCost + tax;
     const orderIdStr = `KIRU-${Date.now()}`;
-
-    await prisma.$transaction(async (tx) => {
-      const newOrder = await tx.order.create({
-        data: {
-          orderId: orderIdStr,
-          customerEmail,
-          customerName,
-          customerPhone: customerPhone || null,
-          shippingAddr,
-          shippingCity,
-          shippingState,
-          shippingZip,
-          paymentMethod,
-          subtotal,
-          shipping: shippingCost,
-          tax,
-          total,
-          status: "pending",
-          items: {
-            create: orderItems,
-          },
-        },
-      });
-
-      for (const item of orderItems) {
-        const updated = await tx.product.updateMany({
-          where: { id: item.productId, stock: { gte: item.quantity } },
-          data: { stock: { decrement: item.quantity } },
-        });
-        if (updated.count === 0) {
-          throw new Error(`Stock changed for product ${item.productId}`);
-        }
-      }
-
-      return newOrder;
-    });
 
     sendOrderEmail({
       orderId: orderIdStr,

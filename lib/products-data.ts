@@ -660,6 +660,8 @@ export const products: Product[] = [
   },
 ];
 
+export { products as allProducts };
+
 export function getProducts(): Product[] {
   return products;
 }

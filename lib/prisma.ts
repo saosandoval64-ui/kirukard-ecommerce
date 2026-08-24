@@ -1,18 +1,49 @@
-import { PrismaClient } from "./generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+// Prisma client - mock for portfolio demo (no database required)
+// In production, replace with actual Prisma client
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
-
-function createPrismaClient() {
-  const adapter = new PrismaMariaDb(
-    process.env.DATABASE_URL || "mysql://root:password@localhost:3306/kirukard"
-  );
-  return new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-  });
-}
-
-export const prisma = globalForPrisma.prisma || createPrismaClient();
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+export const prisma = {
+  product: {
+    findMany: async () => [],
+    findUnique: async () => null,
+    create: async (data: any) => data,
+    update: async (data: any) => data,
+    delete: async () => ({}),
+    count: async () => 0,
+    findFirst: async () => null,
+    updateMany: async () => ({ count: 0 }),
+  },
+  user: {
+    findUnique: async () => null,
+    create: async (data: any) => data,
+    findMany: async () => [],
+  },
+  session: {
+    create: async (data: any) => data,
+    findUnique: async () => null,
+    deleteMany: async () => ({}),
+    delete: async () => ({}),
+  },
+  order: {
+    create: async (data: any) => data,
+    findMany: async () => [],
+    findUnique: async () => null,
+    update: async (data: any) => data,
+    count: async () => 0,
+  },
+  orderItem: {
+    create: async (data: any) => data,
+  },
+  settings: {
+    findUnique: async () => null,
+    upsert: async (data: any) => data,
+    findMany: async () => [],
+  },
+  $transaction: async (fns: any[]) => {
+    const results = [];
+    for (const fn of fns) {
+      results.push(await fn);
+    }
+    return results;
+  },
+  $disconnect: async () => {},
+} as any;
